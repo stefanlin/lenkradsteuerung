@@ -1,19 +1,26 @@
 
 #include <AccelStepper.h>
+#include <Encoder.h>
 
-AccelStepper stepper; // Defaults to AccelStepper::FULL4WIRE (4 pins) on 2, 3, 4, 5
+Encoder handrad(5, 6);
+AccelStepper motorLenkrad; // Defaults to AccelStepper::FULL4WIRE (4 pins) on 2, 3, 4, 5
 
-void setup()
-{
-  stepper.setMaxSpeed(100);
-  stepper.setAcceleration(20);
-  stepper.moveTo(500);
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Lenkradsteuerung Aktiv");
+  
+  motorLenkrad.setMaxSpeed(100);
+  motorLenkrad.setAcceleration(20);
+
+  handrad.write(0);
 }
 
-void loop()
-{
-    if (stepper.distanceToGo() == 0)
-      stepper.moveTo(-stepper.currentPosition());
+long oldPosition  = -999;
 
-    stepper.run();
+void loop() {
+    long diff = handrad.read();
+    handrad.write(0);
+    Serial.println(diff);
+    motorLenkrad.move(diff);
+    motorLenkrad.run();
 }
